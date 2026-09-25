@@ -1,4 +1,6 @@
-from datasets import load_dataset
+from pathlib import Path
+
+from datasets import Dataset, DatasetDict, load_dataset
 
 
 # The normal QASPER loader did not work with my version of datasets because it
@@ -10,8 +12,32 @@ QASPER_BASE_URL = (
 )
 
 
-def load_qasper():
+def _load_cached_qasper():
+    """Return a previously prepared QASPER cache, if all splits are present."""
+    cache_root = Path.home() / ".cache" / "huggingface" / "datasets" / "parquet"
+    for validation_file in cache_root.glob("*/*/*/parquet-validation.arrow"):
+        folder = validation_file.parent
+        split_files = {
+            "train": folder / "parquet-train.arrow",
+            "validation": validation_file,
+            "test": folder / "parquet-test.arrow",
+        }
+        if all(path.exists() for path in split_files.values()):
+            return DatasetDict(
+                {name: Dataset.from_file(str(path)) for name, path in split_files.items()}
+            )
+    return None
+
+
+def load_qasper(prefer_cache=True):
+    """Load QASPER, reusing the local Arrow cache when it is available."""
     print("Loading QASPER dataset...")
+
+    if prefer_cache:
+        cached = _load_cached_qasper()
+        if cached is not None:
+            print("Using cached QASPER Arrow files.")
+            return cached
 
     data_files = {
         "train": f"{QASPER_BASE_URL}/qasper-train.parquet",
