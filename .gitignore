@@ -1,2 +1,15 @@
 venv/
 src/__pycache__/
+
+# Generated data artifacts
+/data/
+/data/checkpoint*/
+/data/checkpoint*_chroma/
+
+# Generated reports and result files
+/reports/
+*.json
+
+# Local environment / caches
+.venv/
+__pycache__/
