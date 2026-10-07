@@ -1,4 +1,6 @@
 datasets==5.0.1
 numpy>=1.26,<2.5
 sentence-transformers==6.0.0
-chromadb
+transformers>=5.0,<6.0
+chromadb>=1.0,<2.0
+pypdf>=6.0,<7.0
